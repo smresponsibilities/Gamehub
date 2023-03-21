@@ -1,0 +1,2 @@
+# Gamehub
+this project is bades on random module in python
