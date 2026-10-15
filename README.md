@@ -7,7 +7,8 @@
 
 A modular, interactive command-line gaming arcade written in Python. Features five classic mini-games (Hangman, Stone Paper Scissors, Number Guesser, Coin Flipper, and Dice Roller) connected by a unified virtual currency staking loop and ASCII graphics.
 
-Project Showcase: [Gamehub on Shivam Mahajan Portfolio](https://shivammahajan.com/projects/)
+Live App / Demo: [https://shivammahajan.com/Gamehub/](https://shivammahajan.com/Gamehub/)  
+Portfolio Architecture: [https://shivammahajan.com/projects/](https://shivammahajan.com/projects/)
 
 ---
 

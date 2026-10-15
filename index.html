@@ -1,0 +1,804 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Python Game Arcade - Interactive Browser Simulator | Shivam Mahajan</title>
+<meta name="description" content="Play Shivam Mahajan's Python CLI Game Arcade in your browser: Guess the Number, Hangman, Stone Paper Scissors, Coinflip, and Diceroll with coin economy.">
+<link rel="canonical" href="https://shivammahajan.com/Gamehub/">
+<meta name="author" content="Shivam Mahajan">
+<meta property="og:site_name" content="Shivam Mahajan Portfolio">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Python Game Arcade - Interactive Browser Terminal">
+<meta property="og:description" content="Experience Shivam Mahajan's terminal mini-game arcade directly in the browser with authentic ASCII art and economy loop.">
+<meta property="og:url" content="https://shivammahajan.com/Gamehub/">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Python Game Arcade - Interactive Browser Terminal">
+<meta name="twitter:description" content="Terminal arcade with Guess the Number, Hangman, Stone Paper Scissors, Coinflip, and Diceroll.">
+<style>
+:root {
+  --bg-deep: #080b10;
+  --bg-terminal: #0d1117;
+  --bg-panel: #161b22;
+  --border: #30363d;
+  --border-focus: #58a6ff;
+  --text-primary: #c9d1d9;
+  --text-bright: #f0f6fc;
+  --text-dim: #8b949e;
+  --accent-green: #3fb950;
+  --accent-amber: #d29922;
+  --accent-cyan: #58a6ff;
+  --accent-red: #f85149;
+  --font-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+  box-sizing: border-box;
+}
+
+*, *::before, *::after { box-sizing: inherit; }
+
+body {
+  margin: 0;
+  padding: 0;
+  background-color: var(--bg-deep);
+  color: var(--text-primary);
+  font-family: var(--font-mono);
+  font-size: 14px;
+  line-height: 1.5;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+header.nav-bar {
+  background: rgba(13, 17, 23, 0.95);
+  border-bottom: 1px solid var(--border);
+  padding: 12px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.brand {
+  font-weight: 700;
+  color: var(--text-bright);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.brand-badge {
+  background: #1f2937;
+  color: var(--accent-green);
+  border: 1px solid var(--accent-green);
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 11px;
+}
+
+.nav-links {
+  display: flex;
+  gap: 16px;
+  font-size: 13px;
+}
+
+.nav-links a {
+  color: var(--text-dim);
+  text-decoration: none;
+  transition: color 0.15s ease;
+}
+
+.nav-links a:hover {
+  color: var(--accent-cyan);
+}
+
+.main-container {
+  max-width: 1000px;
+  width: 100%;
+  margin: 20px auto;
+  padding: 0 16px 40px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.stats-card {
+  background: var(--bg-panel);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 12px 18px;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.stat-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.stat-label {
+  font-size: 11px;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.stat-value {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--text-bright);
+}
+
+.stat-value.coins { color: var(--accent-amber); }
+.stat-value.wins { color: var(--accent-green); }
+.stat-value.losses { color: var(--accent-red); }
+
+.terminal-window {
+  background: var(--bg-terminal);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  min-height: 480px;
+}
+
+.terminal-header {
+  background: #161b22;
+  border-bottom: 1px solid var(--border);
+  padding: 8px 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.window-dots {
+  display: flex;
+  gap: 6px;
+}
+
+.dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #30363d;
+}
+
+.window-title {
+  font-size: 12px;
+  color: var(--text-dim);
+}
+
+.terminal-body {
+  padding: 16px;
+  flex: 1;
+  overflow-y: auto;
+  white-space: pre-wrap;
+  font-family: var(--font-mono);
+  font-size: 13.5px;
+  line-height: 1.45;
+  color: #58a6ff;
+  max-height: 480px;
+}
+
+.out-system { color: var(--text-dim); }
+.out-user { color: var(--text-bright); font-weight: bold; }
+.out-green { color: var(--accent-green); }
+.out-amber { color: var(--accent-amber); }
+.out-red { color: var(--accent-red); }
+.out-cyan { color: var(--accent-cyan); }
+.out-white { color: var(--text-bright); }
+
+.quick-bar {
+  background: #0d1117;
+  border-top: 1px solid var(--border);
+  padding: 10px 14px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+
+.quick-btn {
+  background: var(--bg-panel);
+  border: 1px solid var(--border);
+  color: var(--text-primary);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  padding: 6px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.quick-btn:hover {
+  background: #21262d;
+  border-color: var(--accent-cyan);
+  color: var(--text-bright);
+}
+
+.input-container {
+  background: #0d1117;
+  border-top: 1px solid var(--border);
+  padding: 10px 14px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.prompt-prefix {
+  color: var(--accent-green);
+  font-weight: 700;
+}
+
+.terminal-input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: var(--text-bright);
+  font-family: var(--font-mono);
+  font-size: 14px;
+}
+
+.terminal-submit {
+  background: #238636;
+  border: 1px solid rgba(240, 246, 252, 0.1);
+  color: #fff;
+  padding: 5px 14px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-family: var(--font-mono);
+  font-size: 12px;
+}
+
+.terminal-submit:hover {
+  background: #2ea043;
+}
+
+footer.page-footer {
+  text-align: center;
+  padding: 18px 20px;
+  border-top: 1px solid var(--border);
+  color: var(--text-dim);
+  font-size: 12px;
+}
+
+footer.page-footer a {
+  color: var(--text-primary);
+  text-decoration: none;
+}
+</style>
+</head>
+<body>
+
+<header class="nav-bar">
+  <div class="brand">
+    <span>GameHub</span>
+    <span class="brand-badge">Python CLI Arcade</span>
+  </div>
+  <nav class="nav-links">
+    <a href="https://shivammahajan.com/projects/">Portfolio Architecture</a>
+    <a href="https://github.com/smresponsibilities/Gamehub" target="_blank" rel="noopener noreferrer">View Repository [^]</a>
+    <a href="https://shivammahajan.com/">Shivam Mahajan</a>
+  </nav>
+</header>
+
+<main class="main-container">
+  <div class="stats-card">
+    <div class="stat-item">
+      <span class="stat-label">Player</span>
+      <span class="stat-value" id="disp-player">Guest</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-label">Coin Balance</span>
+      <span class="stat-value coins" id="disp-coins">30</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-label">Victories</span>
+      <span class="stat-value wins" id="disp-wins">0</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-label">Defeats</span>
+      <span class="stat-value losses" id="disp-losses">0</span>
+    </div>
+  </div>
+
+  <div class="terminal-window">
+    <div class="terminal-header">
+      <div class="window-dots">
+        <div class="dot"></div>
+        <div class="dot"></div>
+        <div class="dot"></div>
+      </div>
+      <div class="window-title">pythonprojectfinaldraft.py - Terminal Arcade Session</div>
+      <div></div>
+    </div>
+    <div class="terminal-body" id="term-body"></div>
+    <div class="quick-bar" id="quick-bar">
+      <!-- Dynamic contextual buttons will be placed here -->
+    </div>
+    <form class="input-container" id="term-form">
+      <span class="prompt-prefix" id="prompt-prefix">&gt;</span>
+      <input type="text" id="term-input" class="terminal-input" autocomplete="off" autofocus placeholder="Type input here...">
+      <button type="submit" class="terminal-submit">Send</button>
+    </form>
+  </div>
+</main>
+
+<footer class="page-footer">
+  Engineered by Shivam Mahajan | Systems, Backend &amp; Distributed Systems Engineer |
+  <a href="https://shivammahajan.com/projects/">Portfolio Architecture</a> |
+  <a href="https://github.com/smresponsibilities/Gamehub">GitHub Repository</a>
+</footer>
+
+<script>
+(function() {
+  let win = 0;
+  let lose = 0;
+  let coins = 30;
+  let playerName = "Player";
+
+  // Game state engine
+  // states: 'ASK_NAME', 'MAIN_MENU', 'GUESS_NUM', 'HANGMAN', 'SPS', 'COINFLIP', 'DICEROLL', 'PLAY_MORE'
+  let state = 'ASK_NAME';
+  let subState = {};
+
+  const termBody = document.getElementById('term-body');
+  const termForm = document.getElementById('term-form');
+  const termInput = document.getElementById('term-input');
+  const quickBar = document.getElementById('quick-bar');
+  const dispPlayer = document.getElementById('disp-player');
+  const dispCoins = document.getElementById('disp-coins');
+  const dispWins = document.getElementById('disp-wins');
+  const dispLosses = document.getElementById('disp-losses');
+
+  function updateHUD() {
+    dispPlayer.textContent = playerName;
+    dispCoins.textContent = coins;
+    dispWins.textContent = win;
+    dispLosses.textContent = lose;
+  }
+
+  function print(text, cls = 'out-cyan') {
+    const span = document.createElement('span');
+    span.className = cls;
+    span.textContent = text + '\n';
+    termBody.appendChild(span);
+    termBody.scrollTop = termBody.scrollHeight;
+  }
+
+  function setQuickButtons(buttons) {
+    quickBar.innerHTML = '';
+    buttons.forEach(btn => {
+      const b = document.createElement('button');
+      b.className = 'quick-btn';
+      b.textContent = btn.label;
+      b.type = 'button';
+      b.onclick = () => {
+        termInput.value = btn.value;
+        termForm.dispatchEvent(new Event('submit'));
+      };
+      quickBar.appendChild(b);
+    });
+  }
+
+  function startSession() {
+    print("Welcome to the GameHub!", 'out-amber');
+    print("Who is playing?");
+    setQuickButtons([
+      { label: "Shivam", value: "Shivam" },
+      { label: "Guest", value: "Guest" },
+      { label: "Player 1", value: "Player 1" }
+    ]);
+  }
+
+  function showMainMenu() {
+    updateHUD();
+    if (coins <= 0) {
+      print("\nYou are out of coins... Better luck next time.", 'out-red');
+      print(`Final Record: ${win} wins, ${lose} losses.`);
+      print("Thanks for playing! Have a nice day!!", 'out-green');
+      setQuickButtons([{ label: "Restart Arcade (+30 Coins)", value: "restart" }]);
+      state = 'GAME_OVER';
+      return;
+    }
+
+    state = 'MAIN_MENU';
+    print("\n--- ARCADE MENU ---", 'out-white');
+    print(`You have ${coins} coins.`);
+    print("Each game costs 10 coins to play.");
+    print("Winning gives you +20 coins while losing takes away 10.");
+    print("1 : Guess the number");
+    print("2 : Hangman");
+    print("3 : Stone Paper Scissor");
+    print("4 : Coinflip");
+    print("5 : Diceroll");
+    print("0 : Quit arcade");
+    print("Please type game number (1-5) or 0 to quit:");
+
+    setQuickButtons([
+      { label: "1: Guess Number", value: "1" },
+      { label: "2: Hangman", value: "2" },
+      { label: "3: Stone Paper Scissors", value: "3" },
+      { label: "4: Coinflip", value: "4" },
+      { label: "5: Diceroll", value: "5" },
+      { label: "0: Quit", value: "0" }
+    ]);
+  }
+
+  function handleInput(rawVal) {
+    const val = rawVal.trim();
+    print(`> ${rawVal}`, 'out-user');
+
+    if (state === 'ASK_NAME') {
+      playerName = val || "Player";
+      updateHUD();
+      print(`Welcome to the GameHub, ${playerName}!`, 'out-green');
+      print("You will have 30 coins in the beginning.\n");
+      showMainMenu();
+      return;
+    }
+
+    if (state === 'GAME_OVER') {
+      if (val.toLowerCase() === 'restart') {
+        coins = 30;
+        win = 0;
+        lose = 0;
+        updateHUD();
+        showMainMenu();
+      }
+      return;
+    }
+
+    if (state === 'MAIN_MENU') {
+      const choice = parseInt(val, 10);
+      if (choice === 0) {
+        print(`\nYou won ${win} times and lost ${lose} times.`, 'out-white');
+        print("Thanks for playing! Have a nice day!!", 'out-green');
+        setQuickButtons([{ label: "New Session", value: "restart" }]);
+        state = 'GAME_OVER';
+        return;
+      }
+
+      if (choice === 1) {
+        coins -= 10;
+        updateHUD();
+        state = 'GUESS_NUM';
+        subState = {
+          target: Math.floor(Math.random() * 10) + 1,
+          tries: 1
+        };
+        print("\n=== GUESS THE NUMBER ===", 'out-amber');
+        print("The rules are simple:");
+        print("You guess a number (1-10). If it matches, You win!!");
+        print("You only get three tries though.");
+        print("Watch out for temperature: Hot (<3 away), Warm (3-4 away), Cold (>=5 away).");
+        print("Please guess a number (1-10):");
+        setQuickButtons([
+          { label: "1", value: "1" }, { label: "2", value: "2" }, { label: "3", value: "3" },
+          { label: "4", value: "4" }, { label: "5", value: "5" }, { label: "6", value: "6" },
+          { label: "7", value: "7" }, { label: "8", value: "8" }, { label: "9", value: "9" },
+          { label: "10", value: "10" }
+        ]);
+        return;
+      }
+
+      if (choice === 2) {
+        coins -= 10;
+        updateHUD();
+        const secret = ['bulb', 'offset', 'referee', 'method', 'cheat', 'paradox', 'recommendation', 'enlarge', 'jelly', 'revise', 'year', 'emergency', 'abundant', 'pile', 'joy'];
+        const word = secret[Math.floor(Math.random() * secret.length)];
+        state = 'HANGMAN';
+        subState = {
+          word: word,
+          guesses: "",
+          lives: 5
+        };
+        print("\n=== HANGMAN ===", 'out-amber');
+        print("The backstage dictionary chose a word. Guess it letter by letter!");
+        print("You have 5 lives. Dashes represent hidden letters.");
+        renderHangmanState();
+        return;
+      }
+
+      if (choice === 3) {
+        coins -= 10;
+        updateHUD();
+        state = 'SPS';
+        subState = {
+          playerWin: 0,
+          playerLose: 0,
+          turns: 0
+        };
+        print("\n=== STONE PAPER SCISSORS ===", 'out-amber');
+        print("Best of 5 turns will win!");
+        print("Write stone, paper, or scissor:");
+        setQuickButtons([
+          { label: "Stone", value: "stone" },
+          { label: "Paper", value: "paper" },
+          { label: "Scissor", value: "scissor" }
+        ]);
+        return;
+      }
+
+      if (choice === 4) {
+        coins -= 10;
+        updateHUD();
+        state = 'COINFLIP';
+        print("\n=== COIN FLIP ===", 'out-amber');
+        print("The outcomes can be heads or tails.");
+        print("Type 'flip' to flip the coin:");
+        setQuickButtons([{ label: "Flip Coin", value: "flip" }]);
+        return;
+      }
+
+      if (choice === 5) {
+        coins -= 10;
+        updateHUD();
+        state = 'DICEROLL';
+        print("\n=== DICE ROLL ===", 'out-amber');
+        print("The outcomes of the dice can be 1, 2, 3, 4, 5, 6.");
+        print("Type 'roll' to roll the dice:");
+        setQuickButtons([{ label: "Roll Dice", value: "roll" }]);
+        return;
+      }
+
+      print("Invalid option. Enter 1 to 5, or 0.", 'out-red');
+      return;
+    }
+
+    if (state === 'GUESS_NUM') {
+      const guess = parseInt(val, 10);
+      if (isNaN(guess) || guess < 1 || guess > 10) {
+        print("Please select a number between 1 and 10", 'out-amber');
+        return;
+      }
+
+      const temp = Math.abs(subState.target - guess);
+      if (guess === subState.target) {
+        print("You win!", 'out-green');
+        coins += 20;
+        win += 1;
+        updateHUD();
+        askPlayMore();
+        return;
+      }
+
+      if (temp < 3) print("Hot!!", 'out-amber');
+      else if (temp < 5) print("Warm", 'out-amber');
+      else print("Cold", 'out-cyan');
+
+      if (subState.tries < 3) {
+        print("Try again.");
+        subState.tries += 1;
+      } else {
+        print("You Lose!!", 'out-red');
+        print(`The number was ${subState.target}`);
+        lose += 1;
+        updateHUD();
+        askPlayMore();
+      }
+      return;
+    }
+
+    if (state === 'HANGMAN') {
+      const letter = val.toLowerCase().charAt(0);
+      if (!letter || !/[a-z]/.test(letter)) {
+        print("Please enter a valid letter (a-z).", 'out-amber');
+        return;
+      }
+
+      subState.guesses += letter;
+      if (!subState.word.includes(letter)) {
+        subState.lives -= 1;
+        print(`Nope.... Try again. You have ${subState.lives} lives remaining.`, 'out-red');
+        printHangmanArt(subState.lives);
+      }
+
+      renderHangmanState();
+      return;
+    }
+
+    if (state === 'SPS') {
+      const play = val.toLowerCase();
+      const choices = ["stone", "paper", "scissor"];
+      if (!choices.includes(play)) {
+        print("Not a valid input. Turn lost.", 'out-red');
+        subState.playerLose += 1;
+        subState.turns += 1;
+      } else {
+        const hand = choices[Math.floor(Math.random() * choices.length)];
+        print(`Computer chose: ${hand}`);
+        if (hand === play) {
+          print("Draw", 'out-amber');
+        } else if (
+          (hand === "scissor" && play === "paper") ||
+          (hand === "paper" && play === "stone") ||
+          (hand === "stone" && play === "scissor")
+        ) {
+          print("You lose", 'out-red');
+          subState.playerLose += 1;
+        } else {
+          print("You win!!!", 'out-green');
+          subState.playerWin += 1;
+        }
+        subState.turns += 1;
+      }
+
+      if (subState.turns < 5) {
+        print(`Turn ${subState.turns} of 5. Score: You ${subState.playerWin} - Comp ${subState.playerLose}`);
+        print("Write stone, paper, or scissor:");
+      } else {
+        if (subState.playerWin > subState.playerLose) {
+          print("\nYou beat the computer!!", 'out-green');
+          coins += 20;
+          win += 1;
+        } else {
+          print("\nYou could not beat the computer :(", 'out-red');
+          lose += 1;
+        }
+        updateHUD();
+        askPlayMore();
+      }
+      return;
+    }
+
+    if (state === 'COINFLIP') {
+      if (val.toLowerCase() === 'flip') {
+        const outcomes = ["Heads", "Tails"];
+        const res = outcomes[Math.floor(Math.random() * outcomes.length)];
+        if (res === "Heads") {
+          print(
+`[ HEADS ]
+ ███   ███  ███████   ██████   ██████   ███████
+ ███   ███  ██        ██  ███  ██  ███  ██     
+ █████████  █████     ███████  ██   ██  ███████
+ ███   ███  ██        ██   ██  ██   ██       ██
+ ███   ███  ███████   ██   ██  ██████   ███████`, 'out-amber');
+          print("\nOutcome: HEADS! You won +20 coins!", 'out-green');
+          coins += 20;
+          win += 1;
+        } else {
+          print(
+`[ TAILS ]
+ █████████   ██████   ███  ███       ███████
+    ███     ██    ██  ███  ███       ██     
+    ███     ████████  ███  ███       ███████
+    ███     ██    ██  ███  ███            ██
+    ███     ██    ██  ███  ████████  ███████`, 'out-cyan');
+          print("\nOutcome: TAILS! Better luck next turn.", 'out-red');
+          lose += 1;
+        }
+        updateHUD();
+        askPlayMore();
+      } else {
+        print("Type 'flip' to flip the coin.", 'out-amber');
+      }
+      return;
+    }
+
+    if (state === 'DICEROLL') {
+      if (val.toLowerCase() === 'roll') {
+        const diceFaces = ["⚀ (1)", "⚁ (2)", "⚂ (3)", "⚃ (4)", "⚄ (5)", "⚅ (6)"];
+        const target = Math.floor(Math.random() * 6) + 1;
+        print(`Dice Rolled: ${diceFaces[target - 1]}`, 'out-bright');
+        if (target >= 4) {
+          print("High roll! You win +20 coins!", 'out-green');
+          coins += 20;
+          win += 1;
+        } else {
+          print("Low roll! House wins.", 'out-red');
+          lose += 1;
+        }
+        updateHUD();
+        askPlayMore();
+      } else {
+        print("Type 'roll' to roll the dice.", 'out-amber');
+      }
+      return;
+    }
+
+    if (state === 'PLAY_MORE') {
+      if (val.toLowerCase() === 'y' || val.toLowerCase() === 'yes') {
+        showMainMenu();
+      } else {
+        print(`\nFinal tally: You won ${win} times and lost ${lose} times. You have ${coins} coins.`, 'out-white');
+        print("Thanks for playing! Have a nice day!!", 'out-green');
+        setQuickButtons([{ label: "Restart Arcade", value: "restart" }]);
+        state = 'GAME_OVER';
+      }
+      return;
+    }
+  }
+
+  function renderHangmanState() {
+    let missing = 0;
+    let displayStr = "";
+    for (let char of subState.word) {
+      if (subState.guesses.includes(char)) {
+        displayStr += char + " ";
+      } else {
+        displayStr += "- ";
+        missing += 1;
+      }
+    }
+    print(`Word: ${displayStr}`);
+
+    if (missing === 0) {
+      print("\nYou Win!!!", 'out-green');
+      coins += 20;
+      win += 1;
+      updateHUD();
+      askPlayMore();
+      return;
+    }
+
+    if (subState.lives <= 0) {
+      print(`\nYou lose!!\nThe word was: ${subState.word}`, 'out-red');
+      lose += 1;
+      updateHUD();
+      askPlayMore();
+      return;
+    }
+
+    print(`Letters guessed: ${subState.guesses || 'none'}`);
+    print("Guess an Alphabet (a-z):");
+
+    // Show alphabet keyboard buttons
+    const unpicked = "abcdefghijklmnopqrstuvwxyz".split('').filter(c => !subState.guesses.includes(c)).slice(0, 8);
+    setQuickButtons(unpicked.map(c => ({ label: c.toUpperCase(), value: c })));
+  }
+
+  function printHangmanArt(lives) {
+    if (lives === 4) {
+      print("Don't forget the Consequences!!!");
+    } else if (lives === 3) {
+      print("|\n|\n|\n|\n|\n|");
+    } else if (lives === 2) {
+      print("______\n|\n|\n|\n|\n|\n|");
+    } else if (lives === 1) {
+      print("______\n|    |\n|\n|\n|\n|\n|");
+    } else if (lives === 0) {
+      print(
+`______
+|    |
+|    O
+|   /|\\
+|   / \\
+|_________
+\\_________\\`, 'out-red');
+    }
+  }
+
+  function askPlayMore() {
+    state = 'PLAY_MORE';
+    print(`\nYou have ${coins} coins left.`);
+    print("Wanna play more? (y/n)");
+    setQuickButtons([
+      { label: "Yes (y)", value: "y" },
+      { label: "No (n)", value: "n" }
+    ]);
+  }
+
+  termForm.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const val = termInput.value;
+    termInput.value = '';
+    handleInput(val);
+  });
+
+  startSession();
+})();
+</script>
+</body>
+</html>
